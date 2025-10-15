@@ -109,7 +109,8 @@
 import axios from "axios";
 
 // 🌍 Base URL setup (falls back to localhost for dev)
-const baseURL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+//const baseURL = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000";
+const baseURL = process.env.NEXT_PUBLIC_API_BASE ?? "/hrm/api";
 
 export const api = axios.create({
   baseURL,

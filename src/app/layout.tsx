@@ -93,7 +93,7 @@
 //     return (
 //       <html lang="en" className={theme === "dark" ? "dark" : ""}>
 //         <body
-//           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--background)] text-[var(--foreground)] transition-colors`}
+//           className={${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--background)] text-[var(--foreground)] transition-colors}
 //         >
 //           {children}
 //         </body>
@@ -105,16 +105,16 @@
 //   return (
 //     <html lang="en" className={theme === "dark" ? "dark" : ""}>
 //       <body
-//         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300`}
+//         className={${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300}
 //       >
 //         <div className="flex h-screen w-full bg-[var(--background)] text-[var(--foreground)]">
 //           {/* Sidebar */}
 //           <aside
-//             className={`${sidebarOpen ? "w-64" : "w-20"} border-r border-[var(--border-color)] bg-[var(--card-bg)] transition-all duration-300 flex flex-col`}
+//             className={${sidebarOpen ? "w-64" : "w-20"} border-r border-[var(--border-color)] bg-[var(--card-bg)] transition-all duration-300 flex flex-col}
 //           >
 //             {/* Header */}
 //             <div
-//               className={`flex items-center border-b border-[var(--border-color)] ${sidebarOpen ? "justify-between px-4" : "justify-center px-0"} h-[61px]`}
+//               className={flex items-center border-b border-[var(--border-color)] ${sidebarOpen ? "justify-between px-4" : "justify-center px-0"} h-[61px]}
 //             >
 //               {sidebarOpen && (
 //                 <h1 className="font-semibold text-lg text-[var(--text-primary)]">
@@ -221,7 +221,7 @@
 //   open: boolean;
 // }) {
 //   const pathname = useNormalizedPathname(); // e.g. "/dashboard"
-//   const active = pathname === href || pathname.startsWith(`${href}/`);
+//   const active = pathname === href || pathname.startsWith(${href}/);
 
 //   return (
 //     <Link
@@ -234,7 +234,7 @@
 //         {icon}
 //       </span>
 //       <span
-//         className={`transition-all duration-300 ${open ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 w-0 overflow-hidden"}`}
+//         className={transition-all duration-300 ${open ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 w-0 overflow-hidden"}}
 //       >
 //         {label}
 //       </span>
@@ -263,7 +263,7 @@
 
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/store/auth";
 import Link from "next/link";
@@ -278,9 +278,6 @@ import {
   LayoutDashboard,
   Sun,
   Moon,
-  ShieldCheck, // 🛡️ new icon for Insurance
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -325,9 +322,6 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   const { role, logout, token } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { theme, toggleTheme } = useTheme();
-
-  // ---- Sidebar collapsible Insurance sublinks
-  const [insuranceOpen, setInsuranceOpen] = useState(false);
 
   // Restore session
   useEffect(() => {
@@ -374,11 +368,17 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="flex h-screen w-full bg-[var(--background)] text-[var(--foreground)]">
           {/* Sidebar */}
           <aside
-            className={`${sidebarOpen ? "w-64" : "w-20"} border-r border-[var(--border-color)] bg-[var(--card-bg)] transition-all duration-300 flex flex-col`}
+            className={`${
+              sidebarOpen ? "w-64" : "w-20"
+            } border-r border-[var(--border-color)] bg-[var(--card-bg)] transition-all duration-300 flex flex-col`}
           >
             {/* Header */}
             <div
-              className={`flex items-center border-b border-[var(--border-color)] ${sidebarOpen ? "justify-between px-4" : "justify-center px-0"} h-[61px]`}
+              className={`flex items-center border-b border-[var(--border-color)] ${
+                sidebarOpen
+                  ? "justify-between px-4"
+                  : "justify-center px-0"
+              } h-[61px]`}
             >
               {sidebarOpen && (
                 <h1 className="font-semibold text-lg text-[var(--text-primary)]">
@@ -387,7 +387,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
               )}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="flex items-center justify-center w-10 h-10 rounded-md hover:bg-[var(--hover-bg)] transition"
+                className="flex items-center justify-center w-10 h-10 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800 transition"
               >
                 <Menu className="text-[var(--text-primary)]" size={22} />
               </button>
@@ -421,91 +421,6 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                 label="Payroll"
                 open={sidebarOpen}
               />
-
-              {/* 🧾 Insurance section with sub-items */}
-              {role === "ADMIN" ? (
-                <div className="space-y-1">
-                  {/* Parent menu item */}
-                  <button
-                    onClick={() => setInsuranceOpen(!insuranceOpen)}
-                    className={`group flex items-center rounded-lg w-full transition-all duration-300 ${
-                      sidebarOpen
-                        ? "justify-start gap-1.75 px-3"
-                        : "justify-center"
-                    } h-10 text-[var(--text-primary)] hover:bg-[var(--hover-bg)]`}
-                  >
-                    <span className=" w-6 min-w-[1.5rem]">
-                      <ShieldCheck size={18} />
-                    </span>
-                    {sidebarOpen && (
-                      <>
-                        <span>Insurance</span>
-                        <span className="ml-auto">
-                          {insuranceOpen ? (
-                            <ChevronUp size={14} />
-                          ) : (
-                            <ChevronDown size={14} />
-                          )}
-                        </span>
-                      </>
-                    )}
-                  </button>
-
-                  {/* Submenu */}
-                  <div
-                    className={`transition-all duration-300 overflow-hidden ${
-                      insuranceOpen && sidebarOpen
-                        ? "max-h-60 opacity-100"
-                        : "max-h-0 opacity-0"
-                    }`}
-                  >
-                    <div className="mt-1 pl-[2.7rem] space-y-1">
-                      <SidebarLink
-                        href="/insurance"
-                        icon={<></>}
-                        label="Overview"
-                        open={sidebarOpen}
-                      />
-                      <SidebarLink
-                        href="/insurance/increment"
-                        icon={<></>}
-                        label="Increment & Bonus"
-                        open={sidebarOpen}
-                      />
-                      <SidebarLink
-                        href="/insurance/ctc"
-                        icon={<></>}
-                        label="CTC Sheet"
-                        open={sidebarOpen}
-                      />
-                      <SidebarLink
-                        href="/insurance/convenience"
-                        icon={<></>}
-                        label="Convenience Charge"
-                        open={sidebarOpen}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* Employee menu items */}
-                  <SidebarLink
-                    href="/insurance/details"
-                    icon={<ShieldCheck size={18} />}
-                    label="My Insurance"
-                    open={sidebarOpen}
-                  />
-                  {/* <SidebarLink
-                    href="/insurance/ecash"
-                    icon={<Wallet size={18} />}
-                    label="E-Cash Claim"
-                    open={sidebarOpen}
-                  /> */}
-                </>
-              )}
-
-              {/* Other menu items */}
               <SidebarLink
                 href="/profile"
                 icon={<User size={18} />}
@@ -524,7 +439,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
             <div className="border-t border-[var(--border-color)] p-4 space-y-3">
               <button
                 onClick={toggleTheme}
-                className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-[var(--hover-bg)] transition"
+                className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition"
               >
                 {theme === "dark" ? (
                   <>
@@ -539,7 +454,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 text-red-600 hover:bg-[var(--hover-bg)] w-full px-3 py-2 rounded-lg"
+                className="flex items-center gap-2 text-red-600 hover:bg-red-50 dark:hover:bg-neutral-800 w-full px-3 py-2 rounded-lg"
               >
                 <LogOut size={18} /> {sidebarOpen && "Logout"}
               </button>
@@ -575,13 +490,13 @@ function SidebarLink({
   return (
     <Link
       href={href}
-      className={`group flex items-center rounded-lg transition-all duration-300
-        ${open ? "justify-start gap-3 px-3" : "justify-center px-0"} h-9
-        ${
-          active
-            ? "bg-[var(--hover-bg)] font-semibold"
-            : "text-[var(--text-primary)] hover:bg-[var(--hover-bg)] hover:text-[var(--button-hover-text)]"
-        }`}
+      className={`group flex items-center rounded-lg transition-all duration-300 ${
+        open ? "justify-start gap-3 px-3" : "justify-center px-0"
+      } h-9 ${
+        active
+          ? "bg-[var(--hover-bg)] font-semibold"
+          : "text-[var(--text-primary)] hover:bg-[var(--hover-bg)] hover:text-[var(--button-hover-text)]"
+      }`}
     >
       {icon}
       {open && <span>{label}</span>}
@@ -591,15 +506,124 @@ function SidebarLink({
 
 // ---- Header
 function Header({ role }: { role: string }) {
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const { token } = useAuth();
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+
+  const fetchStatus = async () => {
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/attendance/today`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        setSessions([]);
+        setIsCheckedIn(false);
+        return;
+      }
+
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setSessions(data);
+        const latest = data[data.length - 1];
+        setIsCheckedIn(latest && !latest.checkOutTime);
+      } else {
+        setSessions([]);
+        setIsCheckedIn(false);
+      }
+    } catch (err) {
+      console.error("Failed to fetch attendance status:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+  }, [token, API_BASE]);
+
+  const handleCheckToggle = async () => {
+    if (!token) {
+      alert("You must be logged in to perform this action.");
+      return;
+    }
+
+    const endpoint = isCheckedIn
+      ? "/attendance/checkout"
+      : "/attendance/checkin";
+
+    try {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        alert(data.message || "Something went wrong.");
+        return;
+      }
+
+      await fetchStatus();
+    } catch (err) {
+      console.error("Check-in/out failed:", err);
+      alert("Something went wrong while checking in/out.");
+    }
+  };
+
+  const latestSession = sessions[sessions.length - 1];
+  const checkInTime =
+    latestSession?.checkInTime &&
+    new Date(latestSession.checkInTime).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  const checkOutTime =
+    latestSession?.checkOutTime &&
+    new Date(latestSession.checkOutTime).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
   return (
     <header className="bg-[var(--card-bg)] border-b border-[var(--border-color)] px-6 py-3 flex justify-between items-center">
       <h2 className="font-semibold text-[var(--text-primary)]">
         Human Resource Management
       </h2>
-      <div className="flex items-center gap-3">
+
+      <div className="flex items-center gap-4">
+      {/* Show check-in/out only for non-admin users */}
+{role?.toLowerCase() !== "admin" && (
+  <div className="flex items-center gap-2">
+    <button
+      onClick={handleCheckToggle}
+      className={`px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all ${
+        isCheckedIn
+          ? "bg-red-600 text-white hover:bg-red-700"
+          : "bg-green-600 text-white hover:bg-green-700"
+      }`}
+    >
+      {isCheckedIn ? "Check Out" : "Check In"}
+    </button>
+
+    <div className="text-xs text-gray-500 dark:text-gray-400">
+      {checkInTime && !checkOutTime && `Checked in at ${checkInTime}`}
+      {checkOutTime && `Checked out at ${checkOutTime}`}
+      {!checkInTime && "No activity yet today"}
+    </div>
+  </div>
+)}
+
+
         <span className="text-sm text-gray-500 dark:text-gray-400">
           Role: <strong>{role}</strong>
         </span>
+
         <div className="w-9 h-9 rounded-full border border-[var(--border-color)] flex items-center justify-center font-bold text-sm bg-blue-600 text-white shadow-sm">
           {role?.toLowerCase() === "admin" ? "A" : "E"}
         </div>

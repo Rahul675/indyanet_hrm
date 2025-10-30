@@ -558,7 +558,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
+import React from "react";
 import { useState, useEffect } from "react";
 import {
   Plus,
@@ -735,7 +735,7 @@ export default function EmployeesAdminPage() {
   /* -------------------------------------------
      Fetch Employees
   -------------------------------------------- */
-  useEffect(() => {
+  /* useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const res = await api.get("/employees", {
@@ -749,8 +749,41 @@ export default function EmployeesAdminPage() {
       }
     };
     if (token) fetchEmployees();
-  }, [token]);
+  }, [token]); */
 
+
+   useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const [empRes, attRes] = await Promise.all([
+          api.get("/employees", {
+            headers: { Authorization: `Bearer ${token}` },
+
+          }),
+          api.get("/attendance/today/all", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        const attendanceMap = new Map(
+          attRes.data.map((a: any) => [a.employeeId, a])
+        );
+
+        const merged = empRes.data.map((emp: any) => ({
+          ...emp,
+          attendance: attendanceMap.get(emp.id) || null,
+        }));
+
+        setEmployees(merged);
+      } catch (err) {
+        console.error("Failed to fetch employees or attendance:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) fetchEmployees();
+  }, [token]);
   /* -------------------------------------------
      Form Validation
   -------------------------------------------- */
@@ -1144,141 +1177,171 @@ export default function EmployeesAdminPage() {
                   <th className="text-left px-6 py-4">Contact</th>
                   <th className="text-left px-6 py-4">Department</th>
                   <th className="text-left px-6 py-4">Status</th>
+                  <th className="text-left px-6 py-4">Attendance</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border-color)]">
-                {filteredEmployees.map((employee) => (
-                  <>
-                    <tr
-                      key={employee.id}
-                      className="hover:bg-[var(--hover-bg)] transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
-                            {employee.firstName[0]}
-                            {employee.lastName[0]}
-                          </div>
-                          <div>
-                            <p className="font-semibold">
-                              {employee.firstName} {employee.lastName}
-                            </p>
-                            <p className="text-sm text-[var(--text-muted)]">
-                              {employee.personNo}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        {employee.workEmail}
-                        <br />
-                        <span className="text-[var(--text-muted)]">
-                          {employee.phone || "—"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        {employee.department || "—"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
-                            employee.status === "Active"
-                              ? "bg-green-500/10 text-green-600"
-                              : "bg-red-500/10 text-red-600"
-                          }`}
-                        >
-                          {employee.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() =>
-                            setOpenRow(
-                              openRow === employee.id ? null : employee.id
-                            )
-                          }
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          {openRow === employee.id ? (
-                            <ChevronUp />
-                          ) : (
-                            <ChevronDown />
-                          )}
-                        </button>
-                      </td>
-                    </tr>
+  {filteredEmployees.map((employee) => (
+    <React.Fragment key={employee.id}>
+      <tr className="hover:bg-[var(--hover-bg)] transition-colors">
+        <td className="px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+              {employee.firstName[0]}
+              {employee.lastName[0]}
+            </div>
+            <div>
+              <p className="font-semibold">
+                {employee.firstName} {employee.lastName}
+              </p>
+              <p className="text-sm text-[var(--text-muted)]">
+                {employee.personNo}
+              </p>
+            </div>
+          </div>
+        </td>
 
-                    {openRow === employee.id && (
-                      <tr>
-                        <td
-                          colSpan={5}
-                          className="bg-[var(--hover-bg)] px-8 py-6"
-                        >
-                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                            <p>
-                              <User className="inline w-4 h-4 mr-2 text-blue-500" />
-                              Gender: {employee.gender || "—"}
-                            </p>
-                            <p>
-                              <Mail className="inline w-4 h-4 mr-2 text-blue-500" />
-                              Personal Email: {employee.personalEmail || "—"}
-                            </p>
-                            <p>
-                              <Phone className="inline w-4 h-4 mr-2 text-blue-500" />
-                              Emergency Contact:{" "}
-                              {employee.emergencyContact || "—"}
-                            </p>
-                            <p>
-                              <MapPin className="inline w-4 h-4 mr-2 text-blue-500" />
-                              Address: {employee.address || "—"}
-                            </p>
-                            <p>
-                              <GraduationCap className="inline w-4 h-4 mr-2 text-blue-500" />
-                              Education:{" "}
-                              {employee.educationQualification || "—"}
-                            </p>
-                            <p>
-                              <Calendar className="inline w-4 h-4 mr-2 text-blue-500" />
-                              Birthday:{" "}
-                              {employee.birthdate
-                                ? new Date(
-                                    employee.birthdate
-                                  ).toLocaleDateString()
-                                : "—"}
-                            </p>
-                          </div>
-                          <div className="col-span-full mt-4 border-t border-[var(--border-color)] pt-4">
-                            <h4 className="font-semibold mb-2 text-[var(--text-primary)]">
-                              Uploaded Documents
-                            </h4>
-                            {employee.documents?.length ? (
-                              <ul className="space-y-2">
-                                {employee.documents.map((doc) => (
-                                  <li key={doc.id}>
-                                    <a
-                                      href={`http://localhost:4000/${doc.storageUrl}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-600 hover:underline"
-                                    >
-                                      📄 {doc.title}
-                                    </a>
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <p className="text-sm text-[var(--text-muted)]">
-                                No documents uploaded.
-                              </p>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                ))}
-              </tbody>
+        <td className="px-6 py-4 text-sm">
+          {employee.workEmail}
+          <br />
+          <span className="text-[var(--text-muted)]">
+            {employee.phone || "—"}
+          </span>
+        </td>
+
+        <td className="px-6 py-4 text-sm">
+          {employee.department || "—"}
+        </td>
+
+        <td className="px-6 py-4">
+          <span
+            className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
+              employee.status === "Active"
+                ? "bg-green-500/10 text-green-600"
+                : "bg-red-500/10 text-red-600"
+            }`}
+          >
+            {employee.status}
+          </span>
+        </td>
+
+        <td className="px-6 py-4 text-sm">
+          {employee.attendance ? (
+            <>
+              <div>
+                <strong>Date:</strong>{" "}
+                {new Date(employee.attendance.date).toLocaleDateString([], {
+                  year: "numeric",
+                  month: "short",
+                  day: "2-digit",
+                })}
+              </div>
+              <div>
+                <strong>Check In:</strong>{" "}
+                {employee.attendance.checkInTime
+                  ? new Date(
+                      employee.attendance.checkInTime
+                    ).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "—"}
+              </div>
+              <div>
+                <strong>Check Out:</strong>{" "}
+                {employee.attendance.checkOutTime
+                  ? new Date(
+                      employee.attendance.checkOutTime
+                    ).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "—"}
+              </div>
+            </>
+          ) : (
+            <span className="text-gray-500">Not Checked In</span>
+          )}
+        </td>
+
+        <td className="px-6 py-4 text-right">
+          <button
+            onClick={() =>
+              setOpenRow(openRow === employee.id ? null : employee.id)
+            }
+            className="text-blue-600 hover:text-blue-800"
+          >
+            {openRow === employee.id ? <ChevronUp /> : <ChevronDown />}
+          </button>
+        </td>
+      </tr>
+
+      {openRow === employee.id && (
+        <tr>
+          <td colSpan={7} className="bg-[var(--hover-bg)] px-8 py-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+              <p>
+                <User className="inline w-4 h-4 mr-2 text-blue-500" />
+                Gender: {employee.gender || "—"}
+              </p>
+              <p>
+                <Mail className="inline w-4 h-4 mr-2 text-blue-500" />
+                Personal Email: {employee.personalEmail || "—"}
+              </p>
+              <p>
+                <Phone className="inline w-4 h-4 mr-2 text-blue-500" />
+                Emergency Contact: {employee.emergencyContact || "—"}
+              </p>
+              <p>
+                <MapPin className="inline w-4 h-4 mr-2 text-blue-500" />
+                Address: {employee.address || "—"}
+              </p>
+              <p>
+                <GraduationCap className="inline w-4 h-4 mr-2 text-blue-500" />
+                Education: {employee.educationQualification || "—"}
+              </p>
+              <p>
+                <Calendar className="inline w-4 h-4 mr-2 text-blue-500" />
+                Birthday:{" "}
+                {employee.birthdate
+                  ? new Date(employee.birthdate).toLocaleDateString()
+                  : "—"}
+              </p>
+            </div>
+
+            <div className="col-span-full mt-4 border-t border-[var(--border-color)] pt-4">
+              <h4 className="font-semibold mb-2 text-[var(--text-primary)]">
+                Uploaded Documents
+              </h4>
+              {employee.documents?.length ? (
+                <ul className="space-y-2">
+                  {employee.documents.map((doc) => (
+                    <li key={doc.id}>
+                      <a
+                        href={`http://localhost:4000/${doc.storageUrl}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        📄 {doc.title}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-[var(--text-muted)]">
+                  No documents uploaded.
+                </p>
+              )}
+            </div>
+          </td>
+        </tr>
+      )}
+    </React.Fragment>
+  ))}
+</tbody>
+
             </table>
           </div>
         </div>

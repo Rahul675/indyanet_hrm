@@ -13,7 +13,9 @@ import {
   ChevronDown,
   Sun,
   Moon,
+  Download,
 } from "lucide-react";
+
 import { api } from "@/lib/api";
 import { useAuth } from "@/store/auth";
 import { motion, AnimatePresence } from "framer-motion";
@@ -69,6 +71,29 @@ export default function SettingsEmployeePage() {
       setLoading(false);
     }
   };
+  const handleDownloadBackup = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/attendance/backup', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`, // if your API is protected
+        },
+      });
+  
+      if (!response.ok) throw new Error('Failed to download backup');
+  
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'attendance_backup.json';
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading backup:', error);
+    }
+  };
+  
 
   const handleLogout = () => {
     logout();
@@ -222,6 +247,21 @@ export default function SettingsEmployeePage() {
               )}
             </AnimatePresence>
           </section>
+          {/* 📦 Attendance Backup (Only for Admin) */}
+{useAuth.getState().role === "ADMIN" && (
+  <section className="space-y-3 pt-3 border-t border-[var(--border-color)]">
+    <h2 className="font-semibold text-[var(--text-primary)] flex items-center gap-2">
+      <Download className="text-blue-400 w-5 h-5" /> Attendance Backup
+    </h2>
+    <button
+      onClick={handleDownloadBackup}
+      className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow transition-colors"
+    >
+      <Download className="w-4 h-4" />
+      Download Attendance Backup
+    </button>
+  </section>
+)}
 
           {/* 🚪 Logout */}
           <section className="space-y-3 pt-3 border-t border-[var(--border-color)]">
